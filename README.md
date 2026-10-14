@@ -65,16 +65,14 @@ python -m evalcourse.run --split dev --tasks knapsack --repeats 1 --judge --out 
 
 This runs A and B once each, with at most twelve agent requests and two judge requests. Billing depends on the provider. Inspect `runs/first-pair/report.md`, then each attempt's `result.json`, `solution.py`, and `trace.jsonl`. New results may differ from the recorded batch; both versions are not required to succeed.
 
-## Full experiments and checks
+## Run a full experiment
 
 ```sh
-python -m unittest discover -s tests -v
-python tutorial/build.py --check
 python -m evalcourse.run --split dev --repeats 1 --judge --out runs/dev-check
 python -m evalcourse.run --split holdout --repeats 3 --judge --out runs/holdout-check
 ```
 
-The last two commands need model configuration. Output directories must not already exist. Options include `--tasks`, `--turns`, and `--seed`; defaults are dev, three repeats, six turns, and seed zero. The client fixes temperature at zero, response allowance at 2048 tokens, and request timeout at thirty seconds, without automatic retries. `--judge` enables claims grading. `EVAL_JUDGE_MODEL` can select another judge model; otherwise it uses the agent model. Reports record tokens, not assumed prices.
+These commands need model configuration. Output directories must not already exist. Options include `--tasks`, `--turns`, and `--seed`; defaults are dev, three repeats, six turns, and seed zero. The client fixes temperature at zero, response allowance at 2048 tokens, and request timeout at thirty seconds, without automatic retries. `--judge` enables claims grading. `EVAL_JUDGE_MODEL` can select another judge model; otherwise it uses the agent model. Reports record tokens, not assumed prices.
 
 Auditing records and rerunning an experiment are different operations. Changing the model, service version, or budget changes conditions; even the same model name does not guarantee identical results. New runs belong in new directories.
 
@@ -126,11 +124,13 @@ experiments/    Protocol and preserved real-run evidence
 
 I use size as a constraint: the implementation should remain small enough to read in full while retaining tasks, traces, grading, and comparisons. The page's core line count covers evalcourse runtime, grading, reporting, and rejudging code, excluding task assets, tests, and writing.
 
-## Maintaining the article
+## Explore and edit
 
 Edit Chinese sections in `tutorial/01.html` through `12.html` and English counterparts in `tutorial/en/`, then run `python tutorial/build.py`. This builds `guide.html` (English by default) and `guide.zh-CN.html` (Chinese). Each page links to the other; with JavaScript enabled, switching retains the current section. Code snippets and experiment tables share the same sources.
 
-See the [contribution guide](CONTRIBUTING.md) for checks and maintenance. Code comments and docstrings are English; original task and model records retain their languages.
+To explore how the graders and experiment accounting behave, optionally run `python -m unittest discover -s tests -v`. To check that both HTML pages match their sources, run `python tutorial/build.py --check`. The optional `node tests/article_ui.cjs` checks reading controls through a DOM simulation; it does not verify real-browser layout or clipboard behavior.
+
+This repository is a course and experiment record, with no automatic CI or required contribution checks. Keep new experiments in separate directories, preserve original records, and check any new material for credentials or private data before sharing it.
 
 ## Execution boundaries and license
 

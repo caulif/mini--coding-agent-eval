@@ -32,7 +32,7 @@ header{height:64px;position:sticky;top:0;z-index:5;background:#fffffff5;border-b
 <div class="reading-map"><a href="#ch1"><span>01–04</span><b>定义判断</b><small>目标、证据与评分标准</small></a><a href="#ch5"><span>05–08</span><b>建立可信测量</b><small>任务、记录与版本比较</small></a><a href="#ch9"><span>09–10</span><b>实现测量</b><small>从设计到可运行代码</small></a><a href="#ch11"><span>11–12</span><b>作出判断</b><small>实验观察与下一步</small></a></div>
 <p>当前实验没有观察到新 prompt 的修复收益，却暴露了响应预算、验证声明和评审缺测等问题。这些发现构成了下一轮改进的起点。代码、任务和原始记录一并保留，便于复核和继续探索。</p>
 <p class="caption">可以顺着正文读完主线。完整源码与深入说明可按需展开；离开后，可从上次的小节继续。</p>
-<details><summary>参考、代码与运行说明</summary><p>概念组织参考 <a href="https://claude.ai/artifact/QeGEdokdkwUAaUjRr2Eirx">The Agent Evals Handbook</a>，实现参考 <a href="https://github.com/caulif/mini-agent">mini-agent</a> 的透明工具循环。实现使用 Python 标准库，核心 525 行；任务选自固定版本的 QuixBugs，共八道。当前支持并验证的 Python 版本为 3.12。</p><p>标为“流程示意”的短代码用来展示关系；带源码路径与复制按钮的实现代码块由仓库源码提取。当前评分子进程不是安全沙箱，仅用于当前受控任务，执行模型生成的代码仍需受限环境。来源和验证情况见 <a href="THIRD_PARTY_NOTICES.md">来源说明</a>与<a href="CONTRIBUTING.md">维护与检查</a>。</p></details></section>
+<details><summary>参考、代码与运行说明</summary><p>概念组织参考 <a href="https://claude.ai/artifact/QeGEdokdkwUAaUjRr2Eirx">The Agent Evals Handbook</a>，实现参考 <a href="https://github.com/caulif/mini-agent">mini-agent</a> 的透明工具循环。实现使用 Python 标准库，核心 525 行；任务选自固定版本的 QuixBugs，共八道。当前支持并验证的 Python 版本为 3.12。</p><p>标为“流程示意”的短代码用来展示关系；带源码路径与复制按钮的实现代码块由仓库源码提取。当前评分子进程不是安全沙箱，仅用于当前受控任务，执行模型生成的代码仍需受限环境。来源和验证情况见 <a href="THIRD_PARTY_NOTICES.md">来源说明</a>与<a href="README.zh-CN.md">运行与修改</a>。</p></details></section>
 <section id="ch1" class="chapter" data-stage="定义判断 · 01–04" aria-labelledby="ch1-title"><div class="chapter-no">定义判断 · 01–04 / 01</div><h2 id="ch1-title" tabindex="-1">Agent 评测基础</h2><p class="question">工具和软件测试都能正常运行，我们还需要通过 Agent 评测了解什么？</p>
 <p class="chapter-answer">需要观察它能否把目标变成正确结果，并把这次表现放回任务、运行条件和多次尝试中理解。</p>
 <h3 id="ch1-s1" tabindex="-1">评测的定义</h3>
@@ -578,7 +578,7 @@ python -m evalcourse.run --split holdout --repeats 3 --judge --out runs/holdout-
 <div class="principle"><p><strong>提出可检验的假设 → 冻结比较条件 → 取得完整记录 → 分项评分 → 阅读变化与失败 → 决定保留、修改或继续取证。</strong></p></div>
 <p>这次尝试没有得到“换一个 prompt 就修得更好”的答案，但让我看清了几处值得继续验证的设计。接下来，我希望逐项检验这些假设，让新的改动与新的证据对应起来。代码和记录也留在这里，欢迎复核、指出问题，或在不同任务和模型上继续探索。</p>
 <a class="next-chapter" href="#top"><span>阅读完成</span><b>回到阅读路线 ↑</b></a></section>
-<footer><b>记录理解，也留下检验它的证据。</b><p>mini coding agent eval · 原创内容与代码使用 MIT 许可 · <a href="THIRD_PARTY_NOTICES.md">参考与来源</a> · <a href="CONTRIBUTING.md">维护与检查</a> · <a href="#top">回到开始</a></p><p>本页离线可读，无外部字体、脚本或 CDN。构造示例、公式演示与真实运行结果分别标注。</p></footer></main></div><script>(() => {
+<footer><b>记录理解，也留下检验它的证据。</b><p>mini coding agent eval · 原创内容与代码使用 MIT 许可 · <a href="THIRD_PARTY_NOTICES.md">参考与来源</a> · <a href="README.zh-CN.md">运行与修改</a> · <a href="#top">回到开始</a></p><p>本页离线可读，无外部字体、脚本或 CDN。构造示例、公式演示与真实运行结果分别标注。</p></footer></main></div><script>(() => {
   'use strict';
   const english = document.documentElement.lang === 'en';
   const labels = english

@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import re
+import sys
 from evalcourse.report import summarize, markdown
 from evalcourse.run import ROOT, digest
 
@@ -53,6 +54,8 @@ def verify(source):
 
 
 def main():
+    # Redirected Windows output may default to a legacy code page.
+    sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", nargs="?", type=Path, default=ROOT / "experiments/quixbugs-holdout-3")
     args = parser.parse_args()

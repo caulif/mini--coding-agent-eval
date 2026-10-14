@@ -1,7 +1,10 @@
 """Public offline reproduction and termination accounting."""
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from examples.verify_experiment import verify
@@ -10,6 +13,15 @@ from evalcourse.run import ROOT
 
 
 class PublicWorkflowTests(unittest.TestCase):
+    def test_audit_cli_emits_utf8_under_legacy_windows_encoding(self):
+        env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+        result = subprocess.run([sys.executable, "-m", "examples.verify_experiment"],
+                                cwd=ROOT, env=env, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", errors="replace"))
+        output = result.stdout.decode("utf-8")
+        self.assertIn("PASS: schedule", output)
+        self.assertIn("B − A: -13.3%", output)
+
     def test_original_records_reproduce_and_classify_every_stop(self):
         report, _, _ = verify(ROOT / "experiments/quixbugs-holdout-3")
         b = report["versions"]["B"]

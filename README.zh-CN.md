@@ -71,16 +71,14 @@ python -m evalcourse.run --split dev --tasks knapsack --repeats 1 --judge --out 
 
 这会运行 A/B 各一次，最多 12 次 agent 请求和 2 次 judge 请求；实际计费以供应商为准。完成后打开 `runs/first-pair/report.md`，再根据其中的结束状态查看各次 `result.json`、`solution.py` 和 `trace.jsonl`。真实结果可能与仓库记录不同，不要求两版都成功。
 
-## 完整实验与检查
+## 运行完整实验
 
 ```sh
-python -m unittest discover -s tests -v
-python tutorial/build.py --check
 python -m evalcourse.run --split dev --repeats 1 --judge --out runs/dev-check
 python -m evalcourse.run --split holdout --repeats 3 --judge --out runs/holdout-check
 ```
 
-后两条需要上述模型配置。输出目录必须不存在。支持 `--tasks`、`--turns`、`--seed`；默认 dev、3 次重复、6 轮、seed 0。客户端固定 temperature 0、每响应最多 2048 token、30 秒请求超时、无自动重试。`--judge` 开启声明评分；`EVAL_JUDGE_MODEL` 可另选模型，默认与 agent 相同。报告记录 token，不估算未确认的价格。
+这两条需要上述模型配置。输出目录必须不存在。支持 `--tasks`、`--turns`、`--seed`；默认 dev、3 次重复、6 轮、seed 0。客户端固定 temperature 0、每响应最多 2048 token、30 秒请求超时、无自动重试。`--judge` 开启声明评分；`EVAL_JUDGE_MODEL` 可另选模型，默认与 agent 相同。报告记录 token，不估算未确认的价格。
 
 复核已有记录与重新实验是两件事：更换模型、服务端版本或预算都会改变条件；同名模型也不保证重现同样的结果。新运行单独留档，不覆盖仓库中的实验。
 
@@ -130,16 +128,18 @@ experiments/    预定协议及不可覆盖的真实记录
 
 我把规模作为设计约束：实现保持小到能够完整阅读，同时保留任务、轨迹、评分和实验比较这些必要部分。页面中的核心行数由构建器统计，包含 evalcourse 下的运行、评分、汇总与重评代码，不包含任务资产、测试和文稿。
 
-## 文章维护
+## 探索与修改
 
 中文源文位于 `tutorial/01.html` 至 `12.html`，英文源文位于 `tutorial/en/`。修改对应内容与 layout 后执行 `python tutorial/build.py`，同时生成默认英文的 `guide.html` 和中文的 `guide.zh-CN.html`。两版通过顶部链接切换；启用 JavaScript 时保留章节位置。代码块从实际 Python 函数提取，实验表格从持久化报告生成。
 
-维护与发布检查见 [贡献指南](CONTRIBUTING.zh-CN.md)。
+想了解评分器与实验记账的行为，可以按需运行 `python -m unittest discover -s tests -v`。用 `python tutorial/build.py --check` 检查两版 HTML 是否与源文一致。可选的 `node tests/article_ui.cjs` 通过 DOM 模拟检查阅读控件，不代表真实浏览器布局或剪贴板已验证。
+
+这个仓库是一份教程和实验记录，不设置自动 CI 或贡献检查要求。新实验单独留档，保留原始记录；分享新增材料前检查其中是否有凭据或私人数据。
 
 ## 执行边界
 
 候选代码是 Python，评分子进程不是安全沙箱。临时目录、超时与环境变量清理仅提供复位和故障控制；请只用于当前受控任务。不要直接接入陌生代码、私人仓库或宿主敏感目录。扩展到真实仓库前先采用受限执行环境。
 
-原创文章与代码为 MIT，第三方程序遵循附带许可。见 [来源说明](THIRD_PARTY_NOTICES.md) 和 [贡献指南](CONTRIBUTING.md)。
+原创文章与代码为 MIT，第三方程序遵循附带许可。见 [来源说明](THIRD_PARTY_NOTICES.md)。
 
 代码注释与文档字符串统一使用英文。中文界面文本、原始任务 prompt 和模型记录属于内容或实验数据，保留原语言；翻译任务会改变实验条件。
