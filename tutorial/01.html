@@ -1,0 +1,19 @@
+<p class="question">工具和软件测试都能正常运行，我们还需要通过 Agent 评测了解什么？</p>
+<p class="chapter-answer">需要观察它能否把目标变成正确结果，并把这次表现放回任务、运行条件和多次尝试中理解。</p>
+<h3>评测的定义</h3>
+<p>评测（evaluation，简称 eval）是在指定任务和运行条件下，收集系统行为的证据，再依据预先确定的标准作出判断。
+判断可以是“是否满足要求”，也可以是“哪个版本更好”“哪些场景容易失败”或“成本是否可以接受”。</p>
+<p>它从一个实际决策开始。准备上线日程助手，需要知道它能否正确安排会议；修改 coding agent 的 system prompt，需要知道修复质量是否改善。先明确要作出的判断，才知道应准备哪些任务、观察哪些证据、采用什么评分标准。</p>
+<h3>软件测试与 Agent 评测</h3>
+<p>传统软件的处理逻辑主要由开发者写进程序。单元测试检查一个组件在给定输入下的行为，集成测试检查组件协作，端到端测试检查完整流程。Agent 系统仍然需要这些检查：文件工具必须读对内容，日历接口必须写对字段，超时处理也必须正常工作。</p>
+<p>但部件正确，不等于任务完成。Agent 根据目标和反馈选择动作，实际执行路线要到运行时才展开。日历接口调用成功，会议仍可能被排在错误的时区；代码成功写入，缺陷仍可能存在。要判断整体表现，需要把用户要求与最终状态对照，并记录必要的过程证据。</p>
+<p>以 coding agent 为例，修复后的程序可以用测试验收。这回答了“这份候选代码满足哪些条件”。而判断 agent 的能力，还要把任务起点、可用工具和运行预算固定下来，观察它能否产出这样的代码、是否正常交付、在其他任务和重复尝试中表现如何。程序测试因此成为评测中的一类证据；评测把它与运行条件、过程和多次结果联系起来。</p>
+<h3>评测的四个问题</h3>
+<div class="dimension-grid">
+<article class="dimension-card"><span class="dimension-index">01 · OUTCOME</span><h4>结果</h4><p>用户目标实现了吗？</p><small>观察最终产物、程序行为和外部状态。</small></article>
+<article class="dimension-card"><span class="dimension-index">02 · PROCESS</span><h4>过程</h4><p>必要约束遵守了吗？</p><small>观察工具参数、动作顺序和声明依据。</small></article>
+<article class="dimension-card"><span class="dimension-index">03 · COST</span><h4>成本</h4><p>付出的代价合适吗？</p><small>记录耗时、token 和资源消耗。</small></article>
+<article class="dimension-card"><span class="dimension-index">04 · RELIABILITY</span><h4>可靠性</h4><p>换题或再运行还能成功吗？</p><small>比较不同任务和重复尝试的表现。</small></article></div>
+<p>这四个问题说明<strong>质量体现在哪些方面</strong>。我用“判断目标 → 运行证据 → 评分标准 → 结论范围”组织这次评测设计，说明<strong>怎样取得判断这些质量的依据</strong>。两者分别是观察维度和工作方法。</p>
+
+<p class="chapter-bridge">要把这样的判断落实下来，需要先看清一次评测由哪些部分组成。</p>

@@ -1,0 +1,36 @@
+{
+  "task": "find_first_in_sorted",
+  "slice": "search_boundary",
+  "version": "B",
+  "repeat": 1,
+  "status": "agent_error",
+  "error_type": "HTTPError",
+  "tokens": null,
+  "seconds": 0.06299539999599801,
+  "functional_pass": false,
+  "passed": false,
+  "grade": {
+    "passed": false,
+    "target": {
+      "passed": false,
+      "status": "test_timeout",
+      "checks": []
+    },
+    "regression": {
+      "passed": false,
+      "status": "test_timeout",
+      "checks": []
+    }
+  },
+  "judge": {
+    "status": "skipped",
+    "passed": null,
+    "tokens": 0,
+    "seconds": 0,
+    "reason": "No completed final response",
+    "evidence": {
+      "final": "",
+      "tools": []
+    }
+  }
+}

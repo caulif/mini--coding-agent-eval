@@ -1,0 +1,17 @@
+<p class="question">If tools and software tests work correctly, what else do we need to learn from agent evaluation?</p>
+<p class="chapter-answer">Whether the agent can turn a goal into a correct result, and how that performance depends on tasks, operating conditions, and repeated attempts.</p>
+<h3>The meaning of evaluation</h3>
+<p>Evaluation collects evidence about a system under specified tasks and conditions, then applies predefined criteria to make a judgment. That judgment might concern requirements, a comparison between versions, recurring failures, or acceptable cost.</p>
+<p>It starts with a decision. Shipping a scheduling assistant requires evidence that it can arrange meetings correctly. Changing a coding agent's system prompt raises the question of repair quality. The decision determines which tasks, observations, and criteria are relevant.</p>
+<h3>Software testing and agent evaluation</h3>
+<p>In traditional software, developers encode most of the processing logic. Unit tests check components, integration tests check their cooperation, and end-to-end tests check complete workflows. Agent systems still need all of these: file tools must read the right content, calendar APIs must write the right fields, and timeouts must work.</p>
+<p>Correct components do not guarantee task completion. An agent chooses actions from a goal and feedback; its path unfolds at runtime. A successful calendar API call can schedule a meeting in the wrong time zone. A successful file write can leave the bug intact. Evaluating the whole system requires comparing the request with the final state and retaining relevant process evidence.</p>
+<p>For a coding agent, tests can validate the repaired program. That answers which conditions this candidate satisfies. Evaluating the agent also means fixing the starting point, available tools, and budget, then observing whether it produces such a candidate, completes normally, and performs similarly on other tasks and repeated trials. Program tests become one source of evidence within this broader comparison.</p>
+<h3>Four evaluation questions</h3>
+<div class="dimension-grid">
+<article class="dimension-card"><span class="dimension-index">01 · OUTCOME</span><h4>Outcome</h4><p>Was the user's goal achieved?</p><small>Inspect artifacts, program behavior, and external state.</small></article>
+<article class="dimension-card"><span class="dimension-index">02 · PROCESS</span><h4>Process</h4><p>Were necessary constraints respected?</p><small>Inspect tool arguments, action order, and evidence for claims.</small></article>
+<article class="dimension-card"><span class="dimension-index">03 · COST</span><h4>Cost</h4><p>Was the expense acceptable?</p><small>Record time, tokens, and resource use.</small></article>
+<article class="dimension-card"><span class="dimension-index">04 · RELIABILITY</span><h4>Reliability</h4><p>Does success persist across tasks or retries?</p><small>Compare different tasks and repeated attempts.</small></article></div>
+<p>These questions describe <strong>dimensions of quality</strong>. I organize this experiment around “decision → evidence → criteria → scope of conclusions” to explain <strong>how to obtain grounds for judging those dimensions</strong>. One is a set of things to observe; the other is a way to organize the work.</p>
+<p class="chapter-bridge">Making these judgments concrete starts with the parts of a single evaluation.</p>

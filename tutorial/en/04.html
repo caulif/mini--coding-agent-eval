@@ -1,0 +1,19 @@
+<p class="question">How can a quality requirement become an executable, interpretable set of graders?</p>
+<p class="chapter-answer">Identify the requirement, find the evidence, then choose programmatic, model, or human assessment.</p>
+<h3>Requirements, evidence, and judgments</h3>
+<p>“Preserves existing behavior” calls for regression tests and their results. “The explanation matches the actions” calls for a final response and ordered tool records. Choosing the judge after identifying the evidence helps avoid substituting an easy-to-measure score for the quality that matters.</p>
+<div class="table"><table><tr><th>Requirement</th><th>Main evidence</th><th>Grading approach</th></tr><tr><td>Fix the defect and preserve behavior</td><td>Target and regression checks</td><td>Program execution</td></tr><tr><td>Respect allowed changes</td><td>File diff and allowed paths</td><td>Programmatic rules</td></tr><tr><td>Support verification claims</td><td>Final response and ordered tool records</td><td>Fact checks or a narrowly scoped LLM judge</td></tr><tr><td>Keep the patch relevant and maintainable</td><td>Request, diff, and necessary context</td><td>A specific rubric, LLM assessment, and human review</td></tr><tr><td>Accept for merge or release</td><td>Findings plus business constraints</td><td>Predefined gates; human review where needed</td></tr></table></div>
+<h3>Programmatic grading</h3>
+<p>Directly executable conditions are best checked directly. For knapsack, exhaustive search over small inputs can produce expected optimum values for comparison with candidate code. Acceptance cases should trigger the defect and cover nearby behavior; one example can let a special-case patch slip through.</p>
+<p>Passing establishes the conditions covered by those tests. Uncovered inputs, performance regressions, and unnecessary complexity require other evidence. The grader itself needs checks: the buggy version should fail, a known correct repair should pass, and plausible wrong repairs should be rejected.</p>
+<h3>Model and human grading</h3>
+<p>Open-ended statements and maintainability are difficult to express entirely as exact rules. An LLM judge can apply a clear rubric, but its output remains a measurement affected by the materials, wording, and model. Humans help define criteria, resolve disagreements, and calibrate errors. A stronger judge cannot resolve ambiguity in the criteria themselves.</p>
+<p>A patch-quality rubric might ask whether changes introduce irrelevant branches, duplicate existing logic, or break an explicit interface, with references to diff locations. Asking only “Is this good code?” rarely produces a stable judgment. I implement functional grading and a verification-claims judge here: one executes checks, the other can be inspected against a trace. Maintainability needs diffs, context, and separate calibration samples, so it remains an extension.</p>
+<h3>Combining findings</h3>
+<pre><code>Functional acceptance: pass
+Normal completion: yes
+Verification claims: fail
+Evidence: the final response says tests passed,
+but no test followed the last write</code></pre>
+<p>This record supports different product decisions and explains how equal functional success can coexist with different reporting quality. Whether claims affect the primary success metric must be fixed before inspecting results.</p>
+<p class="chapter-bridge">Criteria determine how to judge a run. Task selection determines what those judgments can represent.</p>

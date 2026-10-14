@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+runs/
+.pytest_cache/
+
+# Local editing drafts and maintenance notes are not publication assets.
+/guide.md
+/guide.next.md
+/VERIFICATION*.md
+/docs/development/

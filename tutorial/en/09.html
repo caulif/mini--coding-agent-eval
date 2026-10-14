@@ -1,0 +1,23 @@
+<p class="question">How do these principles become a runnable coding-agent experiment?</p>
+<p class="chapter-answer">Freeze the choices as an experimental contract, then run A and B through the same execution chain.</p>
+<h3>The experimental contract</h3>
+<p>This experiment compares two system prompts. A gives the repair goal, tool interface, and a short factual reporting requirement. B adds working habits: understand and reproduce, verify after editing, add cases when useful, and describe only verified work. Both versions can create test cases, keeping tool capability separate from prompt effects.</p>
+<p>The main question is whether successful repair delivery improves. The primary metric requires independent functional acceptance and normal completion. The claims judge, tool behavior, and resource use are explanatory components. B might repair better, merely test more and run slower, or perform worse when its budget runs out.</p>
+<h3>The minimal execution chain</h3>
+<figure class="experiment-diagram" aria-label="Evidence flow and two graders for one attempt">
+<div class="flow-node"><b>Task + starting code + fixed conditions</b><span>A/B shares model, tools, and budget; every attempt starts fresh</span></div><div class="flow-arrow" aria-hidden="true">↓</div>
+<div class="flow-node"><b>Coding agent</b><span>read · write · test → feedback → continue or finish</span></div><div class="flow-arrow" aria-hidden="true">↓</div>
+<div class="flow-node"><b>Evidence from one attempt</b><span>Final source · ordered tool records · final response · resource use</span></div><div class="flow-arrow" aria-hidden="true">↓　Send to separate graders　↓</div>
+<div class="grader-branches"><div class="flow-node"><b>Program grader</b><span>Final source → independent checks<br>Does behavior meet requirements?</span></div><div class="flow-node"><b>LLM judge</b><span>Final response + trace → rubric<br>Are verification claims supported?</span></div></div><div class="flow-arrow" aria-hidden="true">↓　Save separate judgments　↓</div>
+<div class="flow-node"><b>Repeat tasks → pair A/B → interpret results</b><span>Delivery success · per-task changes · claims · costs</span></div>
+<figcaption>The harness organizes the data flow. Neither grader participates in the agent's repair.</figcaption></figure>
+<p>Arrows describe data flow, not a required tool sequence. The LLM judge reads completed evidence; it neither repairs the program nor supplies acceptance answers to the agent.</p>
+<h3>Adapting the knapsack task</h3>
+<p>The development task supplies a capacity and weight/value pairs. Each item may be selected once; the goal is maximum value within capacity. The agent receives the upstream buggy algorithm and public examples, can modify solution.py, and can run tests. An adapter maps the common input to the original function arguments.</p>
+<pre><code>def solve(value):
+    return knapsack(value["capacity"], value["items"])</code></pre>
+<p>Acceptance uses independent subset enumeration for capacity boundaries, combinations, and empty sets. The claims grader compares statements about testing with tool records. Two graders examine the same attempt and answer different questions.</p>
+<h3>Run plan and scope</h3>
+<p>Each of three development tasks gets one A/B pair to check the execution chain. Each of five final tasks then gets three attempts per version, totaling thirty. Each attempt permits six model responses; a response may contain multiple tool calls and has a 2048-token maximum. The batch retains the protocol and task/code hashes.</p>
+<p>The implementation uses read, write, and test, following mini-agent's explicit tool loop. I limit scope to single-file algorithm repairs, without retrieval services or elaborate orchestration. Those tools and budgets are part of the experimental conditions and therefore part of the conclusion.</p>
+<p class="chapter-bridge">With the contract fixed, the code needs to prepare, execute, grade, and record each attempt.</p>

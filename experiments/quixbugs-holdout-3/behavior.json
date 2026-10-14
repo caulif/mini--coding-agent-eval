@@ -1,0 +1,16 @@
+{
+  "A": {
+    "read": 15,
+    "write": 15,
+    "test": 31,
+    "test_public": 15,
+    "test_agent_authored": 16
+  },
+  "B": {
+    "read": 14,
+    "write": 13,
+    "test": 30,
+    "test_public": 14,
+    "test_agent_authored": 16
+  }
+}

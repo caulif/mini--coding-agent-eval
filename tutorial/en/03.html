@@ -1,0 +1,12 @@
+<p class="question">Can a functionally correct repair still be unsuitable for delivery?</p>
+<h3>Different aspects of a delivery</h3>
+<p>Yes. The candidate may pass acceptance tests while the agent exhausts its budget without a final response. Or it may finish normally while claiming to have run tests it never ran. Functionality, termination, and trustworthy reporting are separate attributes.</p>
+<p>A delivery can be described through parallel judgments: whether the artifact meets requirements, whether the work completed, whether the explanation is supported, and what it cost. Keeping these separate supports concrete quality–cost decisions.</p>
+<h3>Artifacts and traces</h3>
+<p>Outcome grading examines what was left behind. Process grading examines necessary constraints. A small repair may not need an initial test run; a complex one may require several experiments. Unless the product requires a particular workflow, different action orders alone are not grounds for a penalty.</p>
+<p>I retain observations such as testing before editing, testing after editing, and creating additional cases to help explain possible prompt effects. Those behaviors do not automatically imply higher quality. Another test call that discovers nothing may only add cost.</p>
+<h3>Grading and diagnostic granularity</h3>
+<p>Task-level judgments support success-rate summaries. Case-level results locate failures. Tool-level records explain decisions. A failed test points back to an input; an unsupported claim points back to the order of writes and tests. A single combined score loses these distinctions.</p>
+<div class="principle"><b>Retain components before aggregating</b><p>Functional success, normal completion, supported claims, time, and tokens each have a distinct meaning. Combined gates or weights are useful when a product decision actually requires them.</p></div>
+<p>Reliability emerges when these attributes are observed across multiple trials. Section eight examines repetition and comparison.</p>
+<p class="chapter-bridge">Separate findings expose different aspects of quality. Each now needs appropriate evidence and a grading method.</p>

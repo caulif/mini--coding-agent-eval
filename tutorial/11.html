@@ -1,0 +1,33 @@
+<p class="question">真实跑完以后，哪些观察足以回答“改了 prompt，它真的更会修代码了吗”？</p>
+<h3>本轮的回答</h3>
+<p><strong>没有观察到 B 的功能修复收益。</strong>在这五道题、指定模型和固定预算下，A 交付成功 15/15，B 为 13/15，B−A 为 −13.3 个百分点。差异来自 B 的一次输出上限停止和一次首次请求 HTTPError，均未写入修复。不能把这个小样本差异直接解释为 B 普遍降低了算法修复能力。</p>
+{{experiment:outcome}}
+<p class="caption">真实结果 · 五道最终评测题，每版每题三次。交付成功要求功能验收通过且正常结束。</p>
+<details><summary>实验条件与完整证据</summary><p>模型请求名为 deepseek/deepseek-v4.1-flash，响应模型名为 deepseek-v4.1-flash；六轮、每响应最多 2048 token，A/B 同工具、同预算，按协议交错执行。30 次尝试全部保留，未补跑替换。见 <a href="experiments/PROTOCOL.md">预定协议</a>、<a href="experiments/quixbugs-holdout-3/report.md">原始报告</a>和<a href="experiments/quixbugs-holdout-3/analysis.md">完整解读</a>。</p></details>
+<h3>逐题变化与行为解释</h3>
+{{experiment:tasks}}
+<p class="caption">✓ 交付成功 · × 未交付。每个符号对应一条完整运行记录。</p>
+<p>三个任务没有交付成功率差异；kheapsort 与 find_first_in_sorted 各少了一次 B 的成功。后者的异常发生在第一次请求，记录只保留 HTTPError 类型，不能进一步确定供应商故障原因。保留这次失败计入交付表现，同时将它与算法错误分开归因。</p>
+<h3>功能通过与声明不合格</h3>
+<p>最终集中 <a href="experiments/quixbugs-holdout-3/016-lis-A-2/result.json">lis / A / repeat 2</a> 的候选代码通过了独立功能验收，但声明 judge 判为不合格。沿轨迹检查，可见以下顺序：</p>
+<figure class="timeline"><figcaption>真实轨迹 · lis / A / repeat 2</figcaption><ol><li><b>读取代码</b><span>取得源码与公开样例。</span></li><li><b>公开测试通过</b><span>验证的是修改前的版本。</span></li><li class="edit-step"><b>修改代码</b><span>代码版本改变，原有测试记录仍属于旧版本。</span></li><li><b>六个自建用例通过</b><span>新版本有这些检查，但公开样例没有重新执行。</span></li></ol><p class="timeline-verdict">最终说明却称：“公开示例和额外用例现在均通过。”</p></figure>
+<p>修改后的额外用例有依据，公开示例的验证记录仍属于修改前。这个例子经轨迹核对，确实体现了两个 grader 的互补：功能修复可以成功，关于验证范围的说法仍可能缺乏证据。核对一个案例不等于完成 judge 的独立校准。</p>
+<h3>预算与正常交付</h3>
+<p><a href="experiments/quixbugs-holdout-3/007-kheapsort-B-0/result.json">kheapsort / B / repeat 0</a> 在读取代码后，下一次响应的 finish_reason 为 length，没有发生写入。供应商返回的 usage 显示 completion_tokens 为 2048，其中 reasoning_tokens 也是 2048。此处响应预算包含推理 token，不能简单理解为“还能输出 2048 个可见 token”。</p>
+<p>这条记录的功能验收与交付都失败。它说明当前 prompt、模型与预算组合可能在修复动作前耗尽单次响应额度，不能单凭这次停止断言模型不懂该算法。增加额度可作为下一轮实验，但不能改写本轮的固定条件。</p>
+<h3>声明评分的覆盖</h3>
+{{experiment:judge}}
+<p>这里需要区分两种没有取得评分的情况。A 的五次是<strong>评审错误（error）</strong>：四次 judge 响应被截断，一次请求发生 HTTPError，没有取得合法判定。B 的两次是<strong>按规则跳过（skipped）</strong>：agent 没有正常交付，不进入最终声明评审。</p>
+<p>两者都不能算通过，也不能直接判为“声明不真实”。分别保留 error 和 skipped，才能区分评审失败与不满足评审条件。缺测覆盖不同，且尚无独立人工校准，9/10 与 13/13 不能支持可靠的说明质量排名。</p>
+<h3>HTTPError 与故障归因</h3>
+<p><code>HTTPError</code> 表示 HTTP 请求收到了错误响应，但仅凭这个异常类型，无法确定是模型供应商 API 本身的问题。本项目通过本地兼容端点访问模型，错误可能来自请求、认证、本地代理、网关或上游服务。</p>
+<div class="table"><table><tr><th>状态码示例</th><th>通常需要检查</th></tr><tr><td>400</td><td>参数、请求格式和接口兼容性</td></tr><tr><td>401 / 403</td><td>认证和访问权限</td></tr><tr><td>429</td><td>限流或额度，结合供应商错误分类判断</td></tr><tr><td>502 / 503</td><td>代理、网关或上游服务可用性</td></tr></table></div>
+<p>这些是排查方向，不是本轮已经确认的原因。当前记录只保存了 HTTPError 类型，没有保留具体状态码。因此能确认的是调用链上的请求失败，尚不能把责任定位到客户端、本地代理或上游 API。下一轮应保存状态码与脱敏后的错误分类，使故障能够进一步解释。</p>
+<h3>成本与验证行为</h3>
+{{experiment:cost}}
+<p>耗时包含失败尝试。B 的一次请求异常导致完整 token 用量未知，不能据此比较累计成本。两版都使用了自建测试，各调用 16 次；这一提示主要影响能力的使用方式，未赋予 A 所没有的工具。</p>
+<p>记录的离线复核可运行 <code>python -m examples.verify_experiment</code>。原缺测后来有单独的<a href="experiments/quixbugs-missing-followup-1/README.md">事后补测记录</a>，不计入这里的原始分母，也不能恢复旧请求的未知用量。</p>
+<h3>结果的解释范围</h3>
+<p>五道公开算法题提供的是局部证据。当前结果没有测量工业仓库修复、补丁可维护性或大规模性能。任务 bootstrap 的描述区间为 [−26.7, 0] 个百分点，也不能把这么小的样本变成普遍能力结论。</p>
+<p>对我而言，本轮最有用的发现是：验收通过、正常结束与说明有据需要分别测量；更具体的工作提示也要与响应预算共同检验。下一轮可以预先设计更广的任务覆盖或单独比较预算，并改进 judge 的响应预算与校准。那是新的实验，不能回填成这轮已证明的结论。</p>
+<p class="chapter-bridge">这轮比较留下了结果，也暴露了测量的缺口。最后一章把这些发现转成下一轮开发的起点。</p>

@@ -1,0 +1,72 @@
+{
+  "versions": {
+    "A": {
+      "trials": 3,
+      "successes": 3,
+      "success_rate": 1,
+      "any_success": 1,
+      "all_success": 1,
+      "agent_errors": 0,
+      "budget_stops": 0,
+      "functional_successes": 3,
+      "mean_tools": 4,
+      "mean_seconds": 12.238390300003326,
+      "total_tokens": 20461,
+      "slices": {
+        "capacity": 1,
+        "continuity": 1,
+        "precedence": 1
+      },
+      "judge": {
+        "scored": 3,
+        "passed": 3,
+        "pass_rate": 1,
+        "errors": 0,
+        "skipped": 0,
+        "not_requested": 0,
+        "seconds": 20.44586800000252,
+        "tokens": 8629
+      }
+    },
+    "B": {
+      "trials": 3,
+      "successes": 3,
+      "success_rate": 1,
+      "any_success": 1,
+      "all_success": 1,
+      "agent_errors": 0,
+      "budget_stops": 0,
+      "functional_successes": 3,
+      "mean_tools": 4.666666666666667,
+      "mean_seconds": 16.741080166665295,
+      "total_tokens": 30451,
+      "slices": {
+        "capacity": 1,
+        "continuity": 1,
+        "precedence": 1
+      },
+      "judge": {
+        "scored": 3,
+        "passed": 3,
+        "pass_rate": 1,
+        "errors": 0,
+        "skipped": 0,
+        "not_requested": 0,
+        "seconds": 14.520660399997723,
+        "tokens": 9323
+      }
+    }
+  },
+  "repeats": 1,
+  "per_task_delta": {
+    "knapsack": 0,
+    "lcs_length": 0,
+    "shunting_yard": 0
+  },
+  "delta": 0,
+  "task_bootstrap_95": [
+    0,
+    0
+  ],
+  "warning": "Tiny convenience sample: descriptive evidence, not a general capability claim. Bootstrap resamples tasks; it does not fully model within-task stochasticity."
+}

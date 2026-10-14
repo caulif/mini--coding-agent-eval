@@ -1,0 +1,8 @@
+# Sources and attribution
+
+- [The Agent Evals Handbook](https://claude.ai/artifact/QeGEdokdkwUAaUjRr2Eirx), read 2026-10-13. Conceptual reference for outcome/trajectory/cost/reliability, graders, datasets, traces, repeated trials and evaluation-driven development. Its publication license was not verified. This repository contains independently written Chinese explanations and implementations, not a copied or translated distribution of the artifact.
+- [caulif/mini-agent](https://github.com/caulif/mini-agent), MIT; inspected revision `043d0be8320869428d20c53c0b4abce286364fd8`. Reference for the visible model/tool loop, explicit system prompt and event callbacks, standard-library runtime and standalone HTML article. This project implements a smaller loop independently; it does not vendor the upstream package.
+- Python documentation: [unittest](https://docs.python.org/3/library/unittest.html), [subprocess](https://docs.python.org/3/library/subprocess.html), [tempfile](https://docs.python.org/3/library/tempfile.html).
+- [QuixBugs](https://github.com/jkoppel/QuixBugs), MIT, revision `4257f44b0ff1181dedaedee6a447e133219fcebf`. Original buggy and corrected Python programs are included in `data/quixbugs/` with the upstream `LICENSE`. The eight-task adaptation adds JSON adapters and independent bounded test cases; it is not the official benchmark or an official benchmark score. See `data/provenance.json` for paths and SHA-256 hashes, and `data/README.md` for selection and exclusions.
+
+MIT applies to this repository's original code and article. Names and linked external materials remain under their owners' terms.

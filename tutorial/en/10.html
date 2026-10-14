@@ -1,0 +1,68 @@
+<p class="question">How do these choices connect into a complete run in code?</p>
+<p class="chapter-answer">The implementation centers on one record: the agent produces code and a trace, graders add findings, and the harness saves and aggregates them.</p>
+<h3>Starting from a record</h3>
+<p>I want a knapsack attempt to leave a record like this. This is a field illustration: functionality, termination, and claims remain separate; time and tokens have their own fields in the full record.</p>
+<pre><code>{
+    "task": "knapsack", "version": "A", "repeat": 0,
+    "status": "done",
+    "functional_pass": true,
+    "passed": true,
+    "judge": {"status": "ok", "passed": true}
+}</code></pre>
+<p>Producing it connects the responsibilities already described. This flow sketch omits file and exception handling; implementation blocks below come directly from source.</p>
+<pre><code>restore_initial_source(task)
+run = run_agent(request, public_feedback, prompt, budget)
+functional = grade(final_source, independent_cases)
+claims = judge(final_response, tool_records)
+save(run, functional, claims)</code></pre>
+<p>The code organizes one attempt first, with an outer loop scheduling tasks and versions. Each function owns one responsibility in that data flow.</p>
+<h3>Tasks and workspaces</h3>
+<p>A task supplies the request, initial source, public feedback, and independent checks. The runner creates a fresh directory, writes solution.py, and exposes only the request and public examples to the agent. Independent acceptance stays on the grading side.</p>
+<details><summary>Task fields and source locations</summary><p>tasks.json contains id, split, slice, prompt, source, public, target, and regression. target and regression are complementary behavioral checks that jointly determine functional success. Provenance, adaptation, and independent oracles are described in the <a href="data/README.md">dataset notes</a>.</p><p>Within evalcourse, client connects to the model, agent runs the tool loop, grading executes acceptance checks, judge assesses claims, run orchestrates trials, report aggregates results, and rejudge reuses recorded evidence.</p></details>
+<h3>The agent produces evidence</h3>
+<p>The loop has one central relationship: the model requests tools, the executor returns their results in messages, and the model decides what to do next. A normal final response without tool calls ends the attempt; exhausting turns records a budget stop.</p>
+<div class="concept-flow"><div><b>Model response</b><span>Select an action</span></div><i aria-hidden="true">→</i><div><b>Tool execution</b><span>Operate on the current file</span></div><i aria-hidden="true">→</i><div><b>Observation</b><span>Continue or finish</span></div></div>
+<p>Three tools support this experiment: read returns source and public examples, write replaces the candidate, and test checks the current version. Arguments and results are recorded in order.</p>
+<details><summary>Implementation · agent tool loop</summary>{{code:evalcourse/agent.py#run_agent}}</details>
+<p>test() runs public cases by default; test(cases=...) accepts one to eight agent-authored cases. Feedback retains its source because authored expectations can be wrong. They support repair, not independent acceptance.</p>
+<details><summary>Implementation · authored tests and evidence sources</summary>{{code:evalcourse/agent.py#test_solution}}</details>
+<h3>The program grader checks the artifact</h3>
+<p>After the agent stops, the runner reads the source actually left behind and executes independent cases. The outer judgment is short: both groups must pass.</p>
+{{code:evalcourse/grading.py#grade}}
+<p>check takes candidate source and cases, returning a verdict and individual results. It runs in a fresh directory and separate subprocess, distinguishing valid grading, candidate errors, and timeouts.</p>
+<details><summary>Implementation · execution, timeouts, and errors</summary>{{code:evalcourse/grading.py#check}}</details>
+<p><strong>Checking the grader's ability to distinguish repairs.</strong> No model is needed. <code>python -m examples.inspect_grader</code> compares the same knapsack task's buggy source, reference repair, and an incorrect repair that picks only one item.</p>
+<div class="table"><table><tr><th>Candidate</th><th>Target checks</th><th>Regression checks</th></tr><tr><td>Buggy starting program</td><td>Fail</td><td>Fail</td></tr><tr><td>Reference repair</td><td>Pass</td><td>Pass</td></tr><tr><td>One-item-only repair</td><td>Fail</td><td>Fail</td></tr></table></div>
+<p>In this example, both fields are False for starter and one-item-only, and True for reference. The checks distinguish these implementations. Inspecting the evaluation apparatus this way provides grounds for interpreting later model scores.</p>
+<details><summary>Runnable example · checking the grader</summary>{{code:examples/inspect_grader.py}}</details>
+<h3>The LLM judge assesses claims</h3>
+<p>The second grader uses the saved final response and tool records. It makes an independent model request: a system message supplies the rubric, a user message supplies evidence, and the response contains a verdict and rationale.</p>
+{{code:evalcourse/judge.py#judge}}
+<p>The code checks normal termination and JSON types. Invalid output is rejected instead of converting missing data to a pass. Semantic reliability still requires the human calibration discussed in section seven.</p>
+<p>evaluate connects the judge to a run: it projects tool evidence, excludes A/B labels and primary grades, marks incomplete deliveries skipped, and records request or parsing failures as error. Judge tokens and time are separate.</p>
+<details><summary>Implementation · judge integration and recording</summary>{{code:evalcourse/judge.py#evaluate}}</details>
+<details><summary>Connecting an existing mini-agent</summary><p>The <a href="examples/mini_agent_judge.py">message adapter</a> aligns calls and results by tool_call_id, determines completion from a real end event, and invokes the same judge. It assumes sequential tool records and introduces no mini-agent runtime dependency.</p></details>
+<h3>Assembling one attempt</h3>
+<p>trial connects the pieces: create a workspace, record agent execution, read final source, run functional checks, optionally assess claims, and save the evidence for the same attempt.</p>
+<p>Primary success is <code>functional_pass and status == "done"</code>. Correct code with exhausted turns retains its functional pass while recording incomplete delivery. Agent timing ends before independent acceptance; judge timing is separate.</p>
+<details><summary>Implementation · trial</summary>{{code:evalcourse/run.py#trial}}</details>
+<h3>Batch execution and reports</h3>
+<p>The batch entry point assigns task/version/repeat identities and ordering, then calls trial repeatedly. Each result is immediately written to JSONL. The manifest freezes tasks, prompts, budgets, and source hashes for inspection.</p>
+<p>Aggregation checks complete A/B pairing before calculating success rates, per-task differences, and judge findings. It reads existing records without rerunning the agent.</p>
+<details><summary>Implementation · pairing and statistics</summary>{{code:evalcourse/report.py#summarize}}</details>
+<h3>Running and inspecting</h3>
+<p>Offline inspection checks whether saved records support the report. A new model run conducts another experiment under current conditions. They are different operations.</p>
+<pre><code>python -m unittest discover -s tests -v
+python tutorial/build.py --check
+python -m examples.verify_experiment</code></pre>
+<p>The audit calls no model and executes no candidate. It checks the schedule, task snapshot hash, per-trial results, and grade evidence, then recomputes metrics. Differences between current code/prompts and frozen conditions are reported. Internal consistency does not authenticate historical model responses or revalidate repairs.</p>
+<p>New reports list termination states separately: done means normal completion, not guaranteed functional correctness; budget means exhausted turns; output_limit means exhausted response tokens; agent_error means a request or execution exception. Original reports remain unchanged; the audit derives these additional counts from their rows.</p>
+<div class="practice"><p><strong>A single-task A/B entry point</strong></p><p>The <a href="README.md">README</a> explains model configuration. This command runs A/B once each on one development task, saving report.md and traces to check the execution chain in another environment. For later prompt changes, I would vary one requirement at a time on development tasks, save new results, and confirm gains on new tasks. One task and one repeat provide only diagnostic evidence. Model-generated code requires a restricted environment.</p></div>
+<pre><code># After configuring EVAL_BASE_URL / EVAL_API_KEY / EVAL_MODEL
+python -m evalcourse.run --split dev --tasks knapsack --repeats 1 --judge --out runs/first-pair</code></pre>
+<p>Once the chain works, the predefined protocol covers full development and final batches. Each output directory must be new; earlier records remain intact.</p>
+<pre><code>python -m evalcourse.run --split dev --repeats 1 --judge --out runs/dev-check
+python -m evalcourse.run --split holdout --repeats 3 --judge --out runs/holdout-check</code></pre>
+<p>A complete manifest precedes report interpretation. Differences lead back to result, solution, and trace files. EVAL_JUDGE_MODEL can select another judge model; by default it uses the agent model. A model name may outlive a service-side update, so new runs need not reproduce old scores.</p>
+<details><summary>Execution boundaries and rejudging saved evidence</summary><p>Grading subprocesses are not a security sandbox. Temporary directories, timeouts, and environment cleanup provide reset and fault control for these controlled tasks. Model-generated code still needs a restricted environment.</p><p><code>python -m evalcourse.rejudge runs/holdout-check --out runs/claims-check</code> reuses saved evidence without rerunning the agent or overwriting the source batch. It still makes model requests. A rubric changed after inspecting results makes the new assessment exploratory.</p></details>
+<p class="chapter-bridge">The implementation now connects to saved evidence. The real experiment shows what that evidence can say about the original question.</p>

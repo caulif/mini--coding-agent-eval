@@ -1,0 +1,23 @@
+<p class="question">一个“通过”的分数，究竟由哪些东西共同决定？</p>
+<p class="chapter-answer">任务规定要求，运行留下证据，grader 按标准判定；分数是这条链的结果。</p>
+<h3>一次运行的组成</h3>
+<p>先看一次代码修复。任务给出需求、缺陷代码和可见反馈；环境提供文件与工具；agent 在预算内工作，留下候选代码、工具记录和最终说明。这些是评分的材料。评分标准事先规定哪些条件算通过，grader 根据材料给出判定。</p>
+<p><strong>Grader 是依据标准，把证据转换成判定或分数的评审机制。</strong>它可以是执行测试的程序、按 rubric 评审的模型，也可以是人工评审。同一次修复可以有多个 grader：分别检查功能、改动范围、验证声明和可维护性。汇总规则决定这些分项如何支持最终决策。</p>
+<div class="concept-flow" aria-label="一次评测的数据流"><div><b>任务与环境</b><span>要求与起点</span></div><i aria-hidden="true">→</i><div><b>一次运行</b><span>产生代码与轨迹</span></div><i aria-hidden="true">→</i><div><b>Grader</b><span>依据标准判定</span></div><i aria-hidden="true">→</i><div><b>指标</b><span>概括多次判定</span></div></div>
+<details><summary>组成名称与修复场景的对应</summary><div class="table"><table><tr><th>组成</th><th>负责说明</th><th>修复场景</th></tr>
+<tr><td>Task · 任务</td><td>要完成什么，从什么状态开始</td><td>修复背包算法，保留输入输出接口</td></tr>
+<tr><td>Environment · 环境</td><td>允许接触什么，能做什么</td><td>solution.py、读写与测试工具</td></tr>
+<tr><td>Trial · 一次尝试</td><td>一次完整执行</td><td>初始代码还原后运行某版 agent</td></tr>
+<tr><td>Evidence · 证据</td><td>实际留下什么</td><td>候选代码、测试反馈、工具记录、最终回复</td></tr>
+<tr><td>Grader · 评分机制</td><td>怎样依据标准判断</td><td>功能测试与声明 judge 分别评分</td></tr>
+<tr><td>Metric · 指标</td><td>怎样概括多次判定</td><td>交付成功率、每题变化、平均耗时</td></tr></table></div></details>
+<p>评测执行器（harness）把这些环节组织起来：准备环境、启动一次尝试、收集证据、调用 grader，再保存结果。Agent 决定怎样完成任务，执行器保证这些尝试能够在规定条件下运行和比较。</p>
+<h3>从一次运行到一组评测</h3>
+<p>一次通过只描述这一次产物。要比较两个 prompt，需要让它们面对相同起点；要观察生成波动，需要从这个起点再运行；要了解覆盖范围，还需要其他类型的任务。这个项目因此从一次尝试扩展到同题重复和 A/B 比较，并保留每层身份。</p>
+<div class="table"><table><tr><th>层次</th><th>增加的观察</th><th>可以回答</th></tr>
+<tr><td>一次尝试</td><td>一次执行的产物与轨迹</td><td>这次完成得怎样</td></tr>
+<tr><td>同题重复</td><td>同样条件下的多次尝试</td><td>这个任务是否稳定</td></tr>
+<tr><td>一组任务</td><td>不同缺陷与输入条件</td><td>哪些任务容易失败</td></tr>
+<tr><td>版本比较</td><td>相同任务上的 A/B 结果</td><td>这项改动带来什么变化</td></tr></table></div>
+<p>每条记录至少能定位到 task、version 和 repeat。这样总分发生变化时，还可以回到某道题、某次运行，检查变化的来由。</p>
+<p class="chapter-bridge">这些部分解释了分数怎样产生。接下来需要决定：保留哪些分项，才能看清一次交付的质量。</p>

@@ -1,0 +1,68 @@
+<p class="question">这些设计在代码中怎样连接成一次完整运行？</p>
+<p class="chapter-answer">实现围绕一条运行记录组织：agent 产生候选代码与轨迹，评分器给出分项判定，执行器保存并汇总结果。</p>
+<h3>从一条记录开始</h3>
+<p>我希望一次背包修复留下下面这样的记录。它是字段示意：功能、结束状态和声明分别保存，时间和 token 也各有位置。</p>
+<pre><code>{
+    "task": "knapsack", "version": "A", "repeat": 0,
+    "status": "done",
+    "functional_pass": true,
+    "passed": true,
+    "judge": {"status": "ok", "passed": true}
+}</code></pre>
+<p>要生成它，只需把前面讨论的职责连起来。下面是流程示意，省略文件和异常处理；后面的实现代码均从真实源码提取。</p>
+<pre><code>还原任务的初始代码
+run = 运行_agent(需求, 公开反馈, prompt, 预算)
+功能判定 = 验收(最终源码, 独立用例)
+声明判定 = judge(最终回复, 工具记录)
+保存(run, 功能判定, 声明判定)</code></pre>
+<p>代码先组织一次运行，再由外层循环安排任务和版本。每个函数对应这条数据流中的一项职责。</p>
+<h3>任务与工作目录</h3>
+<p>task 给出需求、初始代码、公开反馈与独立验收。runner 为每次尝试创建新目录，把初始代码写成 solution.py，只把需求和公开样例交给 agent。独立验收留在评分侧。</p>
+<details><summary>任务字段与文件位置</summary><p>任务在 tasks.json，包含 id、split、slice、prompt、source、public、target、regression。当前 target 与 regression 是两组互补的行为检查，共同决定功能判定。来源、适配与独立 oracle 见 <a href="data/README.md">数据集说明</a>。</p><p>evalcourse 中，client 连接模型，agent 运行工具循环，grading 执行验收，judge 评审声明，run 组织执行，report 汇总，rejudge 复用保存的证据。</p></details>
+<h3>Agent 产生证据</h3>
+<p>Agent 的循环只有一个关键关系：模型给出工具调用，执行器把结果返回到消息中，模型再决定下一步。没有工具调用而正常给出最终回复时，这次工作结束；用完轮次则记录预算停止。</p>
+<div class="concept-flow"><div><b>模型响应</b><span>选择动作</span></div><i aria-hidden="true">→</i><div><b>执行工具</b><span>操作当前文件</span></div><i aria-hidden="true">→</i><div><b>返回观察</b><span>继续或交付</span></div></div>
+<p>三个工具足以承载本次实验：read 读取源码与公开示例，write 替换候选源码，test 验证当前版本。调用参数与返回结果按顺序写入轨迹。</p>
+<details><summary>完整实现 · Agent 工具循环</summary>{{code:evalcourse/agent.py#run_agent}}</details>
+<p>test() 默认运行公开样例；test(cases=...) 接受一到八个自建用例。反馈必须保留用例来源：自己写的预期可能有错，它能帮助修复，却不能替代独立验收。</p>
+<details><summary>完整实现 · 自建测试与证据来源</summary>{{code:evalcourse/agent.py#test_solution}}</details>
+<h3>程序 Grader 验收产物</h3>
+<p>Agent 结束后，读取它实际留下的源码，重新执行独立用例。最外层判定很短：两组检查都通过，功能才算通过。</p>
+{{code:evalcourse/grading.py#grade}}
+<p>这里的 check 接收候选源码与一组用例，返回通过状态和各用例结果。它在新目录、独立子进程中执行代码，区分正常判定、候选程序错误和超时。</p>
+<details><summary>完整实现 · 执行、超时与错误处理</summary>{{code:evalcourse/grading.py#check}}</details>
+<p><strong>检查评分器的区分能力。</strong>此时不需要模型。运行 <code>python -m examples.inspect_grader</code>，直接比较同一道 knapsack 任务的缺陷代码、参考修复与“只挑一个物品”的错误修复。</p>
+<div class="table"><table><tr><th>实际验收对象</th><th>目标检查</th><th>回归检查</th></tr><tr><td>原始缺陷代码</td><td>不通过</td><td>不通过</td></tr><tr><td>参考修复</td><td>通过</td><td>通过</td></tr><tr><td>只选一个物品的修复</td><td>不通过</td><td>不通过</td></tr></table></div>
+<p>当前示例中，starter 与 one-item-only 两项均为 False，reference 两项均为 True。这些结果表明，当前用例可以区分这几种实现。评测装置先经过这样的检查，后面的模型得分才有解释基础。</p>
+<details><summary>可运行示例 · 验证 Grader</summary>{{code:examples/inspect_grader.py}}</details>
+<h3>LLM Judge 评审声明</h3>
+<p>第二个 grader 使用刚才保存的最终回复与工具记录。它发出一条独立模型请求：system 提供固定 rubric，user 提供待评审证据；返回判定和依据。</p>
+{{code:evalcourse/judge.py#judge}}
+<p>这段代码检查正常结束与 JSON 类型。格式错误时拒绝判定，避免把缺测变成通过。语义是否可靠，还需要第七章所说的人工校准。</p>
+<p>evaluate 把这个函数接到运行记录上：只提取工具证据，排除 A/B 标签与主评分；未正常交付标为 skipped，请求或解析失败标为 error。Judge 的 token 和耗时另外保存。</p>
+<details><summary>完整实现 · Judge 接线与记录</summary>{{code:evalcourse/judge.py#evaluate}}</details>
+<details><summary>接入已有 mini-agent</summary><p><a href="examples/mini_agent_judge.py">消息适配示例</a>按 tool_call_id 对齐调用和返回，以真实结束事件确定是否完成，再交给相同的 judge。它面向顺序执行的工具记录，未引入 mini-agent 运行时依赖。</p></details>
+<h3>组合一次尝试</h3>
+<p>现在把各部分接回开头的流程。trial 创建工作目录、记录 agent 运行、读取最终源码、执行功能验收，最后按配置调用 judge，并保存同一次尝试的全部证据。</p>
+<p>主成功口径是 <code>functional_pass and status == "done"</code>。因此代码正确但耗尽轮次，仍保留功能通过，同时记录交付未完成。Agent 的计时在独立验收前结束，judge 单独计时。</p>
+<details><summary>完整实现 · trial</summary>{{code:evalcourse/run.py#trial}}</details>
+<h3>批量运行与报告</h3>
+<p>批量入口为 task、version、repeat 安排身份与执行顺序，再重复调用 trial。每条结果立即写入 JSONL，避免只在最后保留一个总分。Manifest 固定任务、prompt、预算和源码哈希，方便复核比较条件。</p>
+<p>汇总先检查 A/B 的任务与重复是否完整配对，再计算成功率、每题变化和独立的 judge 分项。统计读取已经保存的记录，不重新执行 agent。</p>
+<details><summary>完整实现 · 配对检查与统计</summary>{{code:evalcourse/report.py#summarize}}</details>
+<h3>运行与复核</h3>
+<p>先复核已有证据，再决定是否重新执行。两条路径不需要混在一起：离线复核检查保存的记录能否支持报告；新的模型运行是在当下条件下重新做一次实验。</p>
+<pre><code>python -m unittest discover -s tests -v
+python tutorial/build.py --check
+python -m examples.verify_experiment</code></pre>
+<p>复核入口不调用模型、不执行候选程序。它检查计划排程、任务快照哈希、逐次结果与评分记录，再重算报告中的指标。当前源码或 prompt 与冻结条件不同会单独提示。记录内部一致不等于证明模型响应真实，也不等于重新验证修复正确。</p>
+<p>新报告将结束状态单独列出：done 是正常交付流程结束，不保证功能通过；budget 是用完轮次；output_limit 是响应额度耗尽；agent_error 是请求或执行异常。原实验保留旧报告，复核入口可从其结果行补充这些诊断计数。</p>
+<div class="practice"><p><strong>单题 A/B 的运行入口</strong></p><p><a href="README.zh-CN.md">README</a> 提供模型配置方式。下方命令在一道开发题上运行 A/B 各一次，结果保存在 report.md 与每次 trace 中，适合检查自己的环境能否完成这条链路。后续若调整 prompt，我会在开发集上每次改变一项要求、另存结果，再用新的确认任务检验收益；单题一次的结果只作为诊断线索。模型生成代码需在受限环境中执行。</p></div>
+<pre><code># After configuring EVAL_BASE_URL / EVAL_API_KEY / EVAL_MODEL
+python -m evalcourse.run --split dev --tasks knapsack --repeats 1 --judge --out runs/first-pair</code></pre>
+<p>确认链路可用后，按预定协议执行完整开发集与最终集。输出目录必须是新的，原记录始终保留。</p>
+<pre><code>python -m evalcourse.run --split dev --repeats 1 --judge --out runs/dev-check
+python -m evalcourse.run --split holdout --repeats 3 --judge --out runs/holdout-check</code></pre>
+<p>先确认 manifest 的状态为 complete，再读 report；遇到差异，回到对应的 result、solution 和 trace。EVAL_JUDGE_MODEL 可以另选评审模型，默认与被测模型相同。同名模型也可能随服务更新而变化，新运行不保证复现原来的分数。</p>
+<details><summary>执行边界与已有记录的重评</summary><p>评分子进程不是安全沙箱。当前临时目录、超时与环境变量清理只提供复位和故障控制，仅用于当前受控任务，模型生成代码仍需受限环境；接入陌生代码前需要真正受限的执行环境。</p><p><code>python -m evalcourse.rejudge runs/holdout-check --out runs/claims-check</code> 可复用已有证据调用 judge，不重新运行 agent，也不覆盖原批次。它仍需要模型请求；若看结果后改变 rubric，应标为探索性分析。</p></details>
+<p class="chapter-bridge">实现与运行记录已经接通。下面读取真实实验，看看这些证据怎样回答最初的问题。</p>

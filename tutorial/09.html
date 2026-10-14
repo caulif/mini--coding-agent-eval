@@ -1,0 +1,28 @@
+<p class="question">现在怎样把这些原则收敛成一次能运行的 coding agent 实验？</p>
+<p class="chapter-answer">把前面的选择固定成一份实验契约，再让同一条执行链分别运行 A 和 B。</p>
+<h3>实验契约</h3>
+<p>这次实验比较两个 system prompt。A 给出修复目标、工具接口与简短说明要求；B 在同样基础上增加理解与复现、修改后验证、必要时补充用例和据实交付的工作习惯。两版都有自建测试能力，避免把工具能力差异误当作 prompt 效果。</p>
+<p>主问题是功能修复交付是否改善。主指标定义为独立验收通过且状态为 done；声明 judge、工具行为和资源消耗作为解释性分项。B 可能修得更好，也可能只是验证更多、更慢，甚至因预算不足而表现下降。</p>
+<h3>最小执行链</h3>
+<figure class="experiment-diagram" aria-label="一次尝试的证据流与双评分器">
+<div class="flow-node"><b>任务 + 初始代码 + 固定运行条件</b><span>A/B 共用模型、工具、预算；每次重新开始</span></div>
+<div class="flow-arrow" aria-hidden="true">↓</div>
+<div class="flow-node"><b>Coding Agent</b><span>read · write · test → 反馈 → 继续或结束</span></div>
+<div class="flow-arrow" aria-hidden="true">↓</div>
+<div class="flow-node"><b>一次运行的证据</b><span>最终源码 · 有序工具记录 · 最终回复 · 消耗</span></div>
+<div class="flow-arrow" aria-hidden="true">↓　分给不同 Grader　↓</div>
+<div class="grader-branches"><div class="flow-node"><b>程序 Grader</b><span>最终源码 → 独立验收<br>功能是否满足要求</span></div><div class="flow-node"><b>LLM Judge</b><span>最终回复 + 轨迹 → Rubric<br>验证声明是否有依据</span></div></div>
+<div class="flow-arrow" aria-hidden="true">↓　分别保存判定　↓</div>
+<div class="flow-node"><b>同题重复 → A/B 配对 → 实验结论</b><span>交付成功率 · 逐题变化 · 声明质量 · 成本</span></div>
+<figcaption>评测执行器组织数据流；两个 Grader 不参与被测 agent 的修复。</figcaption>
+</figure>
+<p>箭头表示数据流，不规定 agent 必须遵循某一条工具路径。LLM judge 读取已完成的证据，不参与修复，也不向 agent 提示验收答案。</p>
+<h3>背包任务的适配</h3>
+<p>沿用开发集 knapsack：输入包含容量和若干重量/价值对，要求每件物品最多选一次，在容量内取得最高价值。agent 读到上游缺陷算法及公开示例，可以修改 solution.py 并调用测试。适配器仅把统一输入转成原始函数参数。</p>
+<pre><code>def solve(value):
+    return knapsack(value["capacity"], value["items"])</code></pre>
+<p>验收侧使用独立子集枚举得到预期，检查容量边界、多物品组合和空集合等情形。声明侧检查 agent 关于测试的说法是否与其工具记录一致。两种 grader 针对同一尝试，回答不同问题。</p>
+<h3>运行计划与范围</h3>
+<p>三道开发题先各跑 A/B 一次，确认链路；之后五道最终题每版各三次，共三十次。每次最多六轮模型响应，一轮可以含多个工具调用；每个响应最多 2048 token。实验协议、任务及代码哈希随批次保存。</p>
+<p>这里实现 read、write、test 三个工具，沿用 mini-agent 清晰可见的工具循环。我把范围限制在单文件算法修复，暂未加入检索服务或复杂编排。有限工具和预算是实验条件，读结论时要一并带上。</p>
+<p class="chapter-bridge">实验契约确定后，代码只需忠实完成准备、运行、评分和记录这几件事。</p>

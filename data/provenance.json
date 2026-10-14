@@ -1,0 +1,122 @@
+[
+  {
+    "id": "knapsack",
+    "split": "dev",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/knapsack.py",
+      "correct": "correct_python_programs/knapsack.py"
+    },
+    "sha256": {
+      "buggy": "ce8ab048641f73e89cf0f196237a0c13d1e78025f6c44f4e92e4fd834f10123b",
+      "correct": "eb77641ea54529f03ca727bf38b3ab6006ffc17d634540c5e831f9f381aef8b4"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "lcs_length",
+    "split": "dev",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/lcs_length.py",
+      "correct": "correct_python_programs/lcs_length.py"
+    },
+    "sha256": {
+      "buggy": "ab35b03aa24601348e41e39b70514c9837d5d029009862c0b1d9c90e09b9f532",
+      "correct": "c0c66a9a499e75814743654a7a5403dc9d826ebdd0a151859047f66ddfa0fc27"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "shunting_yard",
+    "split": "dev",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/shunting_yard.py",
+      "correct": "correct_python_programs/shunting_yard.py"
+    },
+    "sha256": {
+      "buggy": "b010f04bbfc6158888d97498cc8e0adb323b9f8285fbf5b908c7d4c8c48cfb68",
+      "correct": "f24efd158ead068cf2d476eaec3fdd5f58ef19578ee6a7861f7fcdff7d924645"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "next_permutation",
+    "split": "holdout",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/next_permutation.py",
+      "correct": "correct_python_programs/next_permutation.py"
+    },
+    "sha256": {
+      "buggy": "14ffc36c80bf3bba8db91b7e0fa6be14a8011130ddeaccf33ed62638eac1b25b",
+      "correct": "93bbb04ed299c44c202ab2eca2aa68318b5ee94fdcb6ce5a3977f24c7ed67957"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "kheapsort",
+    "split": "holdout",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/kheapsort.py",
+      "correct": "correct_python_programs/kheapsort.py"
+    },
+    "sha256": {
+      "buggy": "0cabf3d462d941ec01f261f2d794d960ab8ba497c42140cedbc3c872f772cea8",
+      "correct": "f97bce3d8b0a390c56b826df364c1e2d836b1997a416c3e729b75a61a7640cc7"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "lis",
+    "split": "holdout",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/lis.py",
+      "correct": "correct_python_programs/lis.py"
+    },
+    "sha256": {
+      "buggy": "fe9e751f62674299be95f5026c30c778ec331eb449caaa9a13f6b2908e44a016",
+      "correct": "f2f14efdb6b419591d565882734ce05c40cdd3b203b45b5727d2838338063a61"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "mergesort",
+    "split": "holdout",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/mergesort.py",
+      "correct": "correct_python_programs/mergesort.py"
+    },
+    "sha256": {
+      "buggy": "9e1911f1da8b7535c52d19f73d32238e72066b859a853c09cbd2644214f79d61",
+      "correct": "f4b64e3c49b0a050fa99002be491615708eb532be0b137bbc928af683f4da3f7"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  },
+  {
+    "id": "find_first_in_sorted",
+    "split": "holdout",
+    "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "license": "MIT",
+    "paths": {
+      "buggy": "python_programs/find_first_in_sorted.py",
+      "correct": "correct_python_programs/find_first_in_sorted.py"
+    },
+    "sha256": {
+      "buggy": "59bdf7033f9b0f0f63aed032d18e89f30e333eee8689354b666d12ef4d7e3fda",
+      "correct": "815d382f87c7ccc215305b5c28429c96cd605755d44f466bae3448be298bc17d"
+    },
+    "adaptation": "Unchanged upstream code plus solve(value) JSON adapter; independently generated bounded test inputs."
+  }
+]
